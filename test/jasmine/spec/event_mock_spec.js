@@ -119,6 +119,7 @@ describe('Event Mocks', function () {
         expect(submitHandler).not.toHaveBeenCalled();
         expect(clickHandler).toHaveBeenCalled();
     });
+    it('should pass through ')
     describe('edge cases and assumptions', function () {
-    })
+    });
 });
