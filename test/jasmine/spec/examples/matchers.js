@@ -1,4 +1,4 @@
-describe("JasmineQuery matcher examples", function() {
+describe("JasmineQuery matcher examples", function () {
     var $elem;
     beforeEach(function () {
         $elem = $('<div/>').appendTo('body');
@@ -7,13 +7,13 @@ describe("JasmineQuery matcher examples", function() {
         $elem.remove();
     });
     it('should match classes', function () {
-       expect($elem).not.toHaveClass('abc');
-       $elem.addClass('abc');
-       expect($elem).toHaveClass('abc');
+        expect($elem).not.toHaveClass('abc');
+        $elem.addClass('abc');
+        expect($elem).toHaveClass('abc');
     });
     it('should match visibility', function () {
-       expect($elem.show()).toBeVisible();
-       expect($elem.hide()).not.toBeVisible();
+        expect($elem.show()).toBeVisible();
+        expect($elem.hide()).not.toBeVisible();
     });
     it('should match existance', function () {
         expect($elem).toExist();
@@ -29,4 +29,12 @@ describe("JasmineQuery matcher examples", function() {
             expect('abc').toBeVisible();
         }).toThrow('non jQuery element provided for matcher [toBeVisible]')
     });
+    describe('custom matchers', function () {
+        it('should be really easy to create a custom matcher', function () {
+            jasmineQuery.addMatcher('toBeSomethingSpecific', function () {
+                return this.actual.hasClass('.somethingSpecific');
+            });
+            expect($elem).not.toBeSomethingSpecific();
+        });
+    })
 });
