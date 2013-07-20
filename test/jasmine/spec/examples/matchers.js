@@ -36,5 +36,14 @@ describe("JasmineQuery matcher examples", function () {
             });
             expect($elem).not.toBeSomethingSpecific();
         });
+        it('should only run your custom matcher with valid jQuery elements so that' +
+            ' you don\'t have to worry about checking it yourself', function () {
+            var spyMatcher = jasmine.createSpy('spy');
+            jasmineQuery.addMatcher('toBeSomethingElse', spyMatcher);
+            expect(function () {
+                expect({someRandomThing: 'abc'}).toBeSomethingElse();
+            }).toThrow('non jQuery element provided for matcher [toBeSomethingElse]');
+            expect(spyMatcher).not.toHaveBeenCalled();
+        })
     })
 });
