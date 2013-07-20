@@ -3,5 +3,5 @@ JasmineQuery
 
 Making it easier to test jQuery behaviours with Jasmine.
 
-[Read the examples](spec/examples)
+[Read the examples](test/jasmine/spec/examples)
 
