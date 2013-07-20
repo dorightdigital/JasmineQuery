@@ -4,14 +4,14 @@ JasmineQuery
 How to use
 ---
 
-You'll need to include the main [JasmineQuery js file](src/JasmineQuery.js) in your SpecRunner.html, then you'll get access to all the [matchers](test/jasmine/spec/examples/matchers.js), you need to setup mock events manually (because you might not always want them, I'd suggest adding it to the beforeEach just like in [the event examples](test/jasmine/spec/examples/events.js).
+You'll need to include the main [JasmineQuery js file](src/JasmineQuery.js) in your SpecRunner.html.  Then, you'll get access to all the [matchers](test/jasmine/spec/examples/matchers.js) you need to setup mock events manually (because you might not always want them).  I'd suggest adding it to the beforeEach just like in [the event examples](test/jasmine/spec/examples/events.js).
 
 *[See all examples](test/jasmine/spec/examples)*
 
 Why JasmineQuery?
 ---
 
-JasmineQuery is the tool various teams we work with were missing from their projects, we'd often ask ourselves "surely there's a simpler way".  After a few custom solutions in individual tests which quickly became difficult to read it was apparent that this problem needed solving.  JasmineQuery is hoping to iteratively grow into everything you need to write readable, managable jQuery tests in Jasmine.  See how we're doing so far by [reading the examples](test/jasmine/spec/examples) for yourself - tests should document behaviours, how better to document the behaviour of a testing helper than write some tests that use it?
+JasmineQuery is the tool various teams we work with were missing from their projects.  We'd often ask ourselves "surely there's a simpler way".  After a few custom solutions in individual tests which quickly made the tests unreadable it was apparent that this problem needed solving.  JasmineQuery is hoping to iteratively grow into everything you need to write readable, managable jQuery tests in Jasmine.  See how we're doing so far by [reading the examples](test/jasmine/spec/examples) for yourself.  Tests should document behaviours so how better to document the behaviour of a testing helper than write some tests that show how it works!
 
 Dev Approach & pull requests
 ---
@@ -25,5 +25,5 @@ Steward Digital work using some [Core Code Quality Principles](http://steward-di
 Feedback
 ---
 
-It's always good to get feedback, let us know how you find it at jasminequery@steward-digital.com
+It's always good to get feedback.  Let us know how you find it at jasminequery@steward-digital.com.
 
