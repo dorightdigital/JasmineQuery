@@ -16,7 +16,7 @@ JasmineQuery is the tool various teams we work with were missing from their proj
 Dev Approach & pull requests
 ---
 
-Steward Digital work using some [Core Code Quality Principles](http://bit.ly/1dLRusy) which should all be pretty familiar.  We apply these principles to tools like JasmineQuery as well as full on projects.  If there's a feature you think is missing then you might be the first person to need it, you've got 3 choices:
+Steward Digital work using some [Core Code Quality Principles](http://steward-digital.com/ccqp) which should all be pretty familiar.  We apply these principles to tools like JasmineQuery as well as full on projects.  If there's a feature you think is missing then you might be the first person to need it, you've got 3 choices:
 
 1. Add it yourself, send a pull request
 2. Document how it should work with a broken test and send a pull request
