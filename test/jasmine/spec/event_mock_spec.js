@@ -120,5 +120,5 @@ describe('Event Mocks', function () {
         expect(clickHandler).toHaveBeenCalled();
     });
     describe('edge cases and assumptions', function () {
-    })
+    });
 });
