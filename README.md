@@ -13,6 +13,31 @@ Why JasmineQuery?
 
 JasmineQuery is the tool various teams we work with were missing from their projects.  We'd often ask ourselves "surely there's a simpler way".  After a few custom solutions in individual tests which quickly made the tests unreadable it was apparent that this problem needed solving.  JasmineQuery is hoping to iteratively grow into everything you need to write readable, managable jQuery tests in Jasmine.  See how we're doing so far by [reading the examples](test/jasmine/spec/examples) for yourself.  Tests should document behaviours so how better to document the behaviour of a testing helper than write some tests that show how it works!
 
+Who wants to write:
+expect($('.myThing').hasClass('active')).toBeTruthy();
+When they could write:
+expect($('.myThing')).toHaveClass('active');
+
+Who wants to write:
+expect($('.myThing').is(':visible')).toBeTruthy();
+When they could write:
+expect($('.myThing')).toBeVisible();
+
+Who wants to write:
+expect($('.myThing').length).toBe(1);
+When they could write:
+expect($('.myThing')).toExist();
+
+Who wants to write:
+expect($('.myThing').find('.active').length).not.toBe(0);
+When they could write:
+expect($('.myThing')).toContain('.active');
+
+Who wants to write:
+expect($('.myThing').text().indexOf('abc') > -1).toBe(true);
+When they could write:
+expect($('.myThing')).toContainText('abc');
+
 Dev Approach & pull requests
 ---
 
@@ -27,3 +52,9 @@ Feedback
 
 It's always good to get feedback.  Let us know how you find it at jasminequery@steward-digital.com.
 
+Todo
+---
+ - Add support for bubbling events (e.g. clicking a child element should fire the click handler on a parent with appropriate event.target
+ - Add support for data param with 'on'
+ - Add 'off' support
+ - Add 'one' support
