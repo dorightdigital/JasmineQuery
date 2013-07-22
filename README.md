@@ -6,37 +6,57 @@ How to use
 
 You'll need to include the main [JasmineQuery js file](src/JasmineQuery.js) in your SpecRunner.html.  Then, you'll get access to all the [matchers](test/jasmine/spec/examples/matchers.js) you need to setup mock events manually (because you might not always want them).  I'd suggest adding it to the beforeEach just like in [the event examples](test/jasmine/spec/examples/events.js).
 
-*[See all examples](test/jasmine/spec/examples)*
+[***___See all examples___***](test/jasmine/spec/examples)
 
 Why JasmineQuery?
 ---
 
-JasmineQuery is the tool various teams we work with were missing from their projects.  We'd often ask ourselves "surely there's a simpler way".  After a few custom solutions in individual tests which quickly made the tests unreadable it was apparent that this problem needed solving.  JasmineQuery is hoping to iteratively grow into everything you need to write readable, managable jQuery tests in Jasmine.  See how we're doing so far by [reading the examples](test/jasmine/spec/examples) for yourself.  Tests should document behaviours so how better to document the behaviour of a testing helper than write some tests that show how it works!
+JasmineQuery is the tool various teams we work with were missing from their projects.  We'd often ask ourselves "surely there's a simpler way".  After a few custom solutions in individual tests which quickly made the tests unreadable it was apparent that this problem needed solving.  JasmineQuery is hoping to iteratively grow into everything you need to write readable, managable jQuery tests in Jasmine.  See how we're doing so far by [***___reading the examples___***](test/jasmine/spec/examples) for yourself.  Tests should document behaviours so how better to document the behaviour of a testing helper than write some tests that show how it works!
 
 Who wants to write:
+```javascript
 expect($('.myThing').hasClass('active')).toBeTruthy();
+```
 When they could write:
+```javascript
 expect($('.myThing')).toHaveClass('active');
+```
 
 Who wants to write:
+```javascript
 expect($('.myThing').is(':visible')).toBeTruthy();
+```
 When they could write:
+```javascript
 expect($('.myThing')).toBeVisible();
+```
 
 Who wants to write:
+```javascript
 expect($('.myThing').length).toBe(1);
+```
 When they could write:
+```javascript
 expect($('.myThing')).toExist();
+```
 
 Who wants to write:
+```javascript
 expect($('.myThing').find('.active').length).not.toBe(0);
+```
 When they could write:
+```javascript
 expect($('.myThing')).toContain('.active');
+```
 
 Who wants to write:
+```javascript
 expect($('.myThing').text().indexOf('abc') > -1).toBe(true);
+```
 When they could write:
+```javascript
 expect($('.myThing')).toContainText('abc');
+```
 
 Dev Approach & pull requests
 ---
