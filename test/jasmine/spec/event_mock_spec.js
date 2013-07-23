@@ -25,16 +25,25 @@ describe('Event Mocks', function () {
           expect($elem).toHaveEventHandlerFor(eventType);
         });
         it('should work with child event syntax', function () {
-          var $div = $('<div/>');
+          var $child = $('<p/>');
           var handler = jasmine.createSpy('handler');
-          $elem.append($div);
-          $elem.on(eventType, 'div', handler);
-          $elem.find('div')[eventType]();
+          $elem.append($child);
+          $elem.on(eventType, 'p', handler);
+          $child[eventType]();
           expect(handler).toHaveBeenCalled();
         });
         it('should not cross-over between elements', function () {
           $('<div/>')[eventType](emptyFunc);
           expect($elem).not.toHaveEventHandlerFor(eventType);
+        });
+        it('should support child appended later when using "on" syntax', function () {
+          var spy = jasmine.createSpy('handler');
+          $elem.on(eventType, 'p', spy);
+          var $child = $('<p/>').appendTo($elem);
+          expect($elem).not.toHaveEventHandlerFor(eventType);
+          expect($child).toHaveEventHandlerFor(eventType);
+          $child[eventType]();
+          expect(spy).toHaveBeenCalled();
         });
         it('should detect preventing default behaviour', function () {
           $elem[eventType](function (e) {
@@ -48,13 +57,11 @@ describe('Event Mocks', function () {
           expect($elem).not.toPreventDefaultEventHandlerFor(eventType);
         });
         it('should detect preventing default if any function prevents it', function () {
-          $elem[eventType](function (e) {
-          });
+          $elem[eventType](emptyFunc);
           $elem[eventType](function (e) {
             e.preventDefault();
           });
-          $elem[eventType](function (e) {
-          });
+          $elem[eventType](emptyFunc);
           expect($elem).toPreventDefaultEventHandlerFor(eventType);
         });
         it('should call through to handler function', function () {
@@ -74,6 +81,11 @@ describe('Event Mocks', function () {
         it('should pass through event type', function () {
           $elem[eventType](function (event) {
             expect(event.type).toBe(eventType);
+          })[eventType]();
+        });
+        it('should pass through a prevent default function', function () {
+          $elem[eventType](function (event) {
+            expect(typeof event.preventDefault).toBe('function');
           })[eventType]();
         });
         it('should work with multiple elements', function () {
@@ -134,6 +146,38 @@ describe('Event Mocks', function () {
     expect(submitHandler).not.toHaveBeenCalled();
     expect(clickHandler).toHaveBeenCalled();
   });
+  it('should only apply events to relevant children using "on" syntax', function () {
+    var $child = $('<p/>').appendTo($elem);
+    $elem.on('click', '.nonexistant', emptyFunc);
+    expect($elem).not.toHaveEventHandlerFor('click');
+    expect($child).not.toHaveEventHandlerFor('click');
+  });
+  it('should apply to ancestors when using "on" syntax', function () {
+    var $child = $('<p/>').appendTo($('<div/>').appendTo($elem));
+    $elem.on('click', 'p', emptyFunc);
+    expect($elem).not.toHaveEventHandlerFor('click');
+    expect($child).toHaveEventHandlerFor('click');
+  });
+  it('should be removable in case people want to test actual jQuery', function () {
+    jasmineQuery.unmockEvents();
+    var clickHandler = jasmine.createSpy('click');
+    $elem.on('click', clickHandler);
+    expect($elem).not.toHaveEventHandlerFor('click'); // jasmineQuery won't know about this handler
+    $elem.click();
+    expect(clickHandler).toHaveBeenCalled(); // by jQuery
+  });
+  it('should pass through additional objects as well as official event object', function () {
+    var clickHandler = jasmine.createSpy('click');
+    $elem.on('click', clickHandler);
+    jasmineQuery.callEventHandler('click', $elem, {}, 'a', 'b', 'c', 'd');
+    expect(clickHandler).toHaveBeenCalledWith(jasmine.any(Object), 'a', 'b', 'c', 'd');
+  });
+  it('should pass through only the official event object by default', function () {
+    var clickHandler = jasmine.createSpy('click');
+    $elem.on('click', clickHandler);
+    jasmineQuery.callEventHandler('click', $elem);
+    expect(clickHandler).toHaveBeenCalledWith(jasmine.any(Object));
+  });
   describe('event object', function () {
     it('should contain target', function () {
       var nativeElem = $elem[0];
@@ -148,7 +192,20 @@ describe('Event Mocks', function () {
         expect(event.timeStamp).toBe(fakeTime);
       }).click();
     });
-  })
+  });
   describe('edge cases and assumptions', function () {
+    it('should toggle checkbox when clicked', function () {
+      var chb = $('<input type="checkbox"/>');
+      expect(chb.is(':checked')).toBeFalsy();
+      chb.click();
+      expect(chb.is(':checked')).toBeTruthy();
+      chb.click();
+      expect(chb.is(':checked')).toBeFalsy();
+    });
+    it('should not toggle checkbox on other events', function () {
+      var chb = $('<input type="checkbox"/>');
+      chb.mouseenter();
+      expect(chb.is(':checked')).toBeFalsy();
+    });
   });
 });

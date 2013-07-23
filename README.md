@@ -78,3 +78,4 @@ Todo
  - Add support for data param with 'on'
  - Add 'off' support
  - Add 'one' support
+ - Support events with namespaces
