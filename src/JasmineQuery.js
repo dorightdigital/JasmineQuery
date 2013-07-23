@@ -23,7 +23,7 @@ var jasmineQuery = {
     toBeVisible: function () {
       return this.actual.is(':visible');
     },
-    toExist: function () {
+    elementToExist: function () {
       return this.actual.length > 0;
     },
     textToEqual: function (expected) {

@@ -16,8 +16,8 @@ describe("JasmineQuery matcher examples", function () {
     expect($elem.hide()).not.toBeVisible();
   });
   it('should match existance', function () {
-    expect($elem).toExist();
-    expect($elem.children()).not.toExist();
+    expect($elem).elementToExist();
+    expect($elem.children()).not.elementToExist();
   });
   it('should match text', function () {
     var inputHtml = 'a<b>c</b>';
