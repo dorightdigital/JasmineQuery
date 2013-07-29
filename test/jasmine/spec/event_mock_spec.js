@@ -49,12 +49,12 @@ describe('Event Mocks', function () {
           $elem[eventType](function (e) {
             e.preventDefault()
           });
-          expect($elem).toPreventDefaultEventHandlerFor(eventType);
+          expect($elem).toPreventDefaultFor(eventType);
         });
         it('should detect when not preventing default behaviour', function () {
           $elem[eventType](function (e) {
           });
-          expect($elem).not.toPreventDefaultEventHandlerFor(eventType);
+          expect($elem).not.toPreventDefaultFor(eventType);
         });
         it('should detect preventing default if any function prevents it', function () {
           $elem[eventType](emptyFunc);
@@ -62,7 +62,7 @@ describe('Event Mocks', function () {
             e.preventDefault();
           });
           $elem[eventType](emptyFunc);
-          expect($elem).toPreventDefaultEventHandlerFor(eventType);
+          expect($elem).toPreventDefaultFor(eventType);
         });
         it('should call through to handler function', function () {
           var spy = jasmine.createSpy('handler');

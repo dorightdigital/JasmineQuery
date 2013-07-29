@@ -51,9 +51,9 @@ describe('JasmineQuery event handler examples', function () {
           event.preventDefault();
         }
       });
-      expect($hyperlink).toPreventDefaultEventHandlerFor('click');
+      expect($hyperlink).toPreventDefaultFor('click');
       $hyperlink.attr('href', 'http://google.com');
-      expect($hyperlink).not.toPreventDefaultEventHandlerFor('click');
+      expect($hyperlink).not.toPreventDefaultFor('click');
     });
   });
 });

@@ -1,21 +1,26 @@
 /*global $, jasmine, spyOn, expect*/
-var jasmineQuery = {
-  addMatchers: function (matchers) {
-    $.each(matchers, function (name, matcher) {
-      jasmineQuery.addMatcher(name, matcher);
-    });
-  },
-  addMatcher: function (name, matcher) {
-    jasmine.Matchers.prototype[name] = function () {
-      if (!this.actual.is || !this.actual.on || !this.actual.click) {
-        throw 'non jQuery element provided for matcher [' + name + ']';
-      }
-      return matcher.apply(this, arguments)
-    }
-  }
-};
-
+var jasmineQuery = {};
 (function () {
+  var installedMatchers = {};
+  jasmineQuery = {
+    addMatchers: function (matchers) {
+      $.each(matchers, function (name, matcher) {
+        jasmineQuery.addMatcher(name, matcher);
+      });
+    },
+    addMatcher: function (name, matcher) {
+      installedMatchers[name] = matcher;
+      jasmine.Matchers.prototype[name] = function () {
+        if (!this.actual.is || !this.actual.on || !this.actual.click) {
+          throw 'non jQuery element provided for matcher [' + name + ']';
+        }
+        return matcher.apply(this, arguments)
+      }
+    },
+    refreshMatchers: function (test) {
+      test.addMatchers(installedMatchers);
+    }
+  };
   var matchers = {
     toHaveClass: function (expected) {
       return this.actual.hasClass(expected);
@@ -251,7 +256,7 @@ var jasmineQuery = {
   };
   jasmineQuery.resetMockEvents();
   jasmineQuery.addMatchers({
-    toPreventDefaultEventHandlerFor: function (event) {
+    toPreventDefaultFor: function (event) {
       var defaultPrevented = false;
       jasmineQuery.callEventHandler(event, this.actual, {
         preventDefault: function () {

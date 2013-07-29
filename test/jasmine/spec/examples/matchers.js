@@ -91,6 +91,16 @@ describe("JasmineQuery matcher examples", function () {
         expect({someRandomThing: 'abc'}).toBeSomethingElse();
       }).toThrow('non jQuery element provided for matcher [toBeSomethingElse]');
       expect(spyMatcher).not.toHaveBeenCalled();
-    })
-  })
+    });
+  });
+  describe('conflict resolution', function () {
+    it('should be able to reinsert matchers for current test', function () {
+      var spy = jasmine.createSpy('matcher spy');
+      jasmine.Matchers.prototype.toHaveClass = spy;
+      jasmineQuery.refreshMatchers(this);
+      expect($('<a class="a"/>')).toHaveClass('a');
+      expect($('<a/>').children()).not.toHaveClass('a');
+      expect(spy).not.toHaveBeenCalled();
+    });
+  });
 });
