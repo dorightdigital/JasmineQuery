@@ -178,34 +178,12 @@ describe('Event Mocks', function () {
     jasmineQuery.callEventHandler('click', $elem);
     expect(clickHandler).toHaveBeenCalledWith(jasmine.any(Object));
   });
-  describe('event object', function () {
-    it('should contain target', function () {
-      var nativeElem = $elem[0];
-      $elem.on('click',function (event) {
-        expect(event.target).toBe(nativeElem)
-      }).click();
-    });
-    it('should contain a timestamp', function () {
-      var fakeTime = 100;
-      spyOn(Date.prototype, 'getTime').andReturn(fakeTime);
-      $elem.on('click',function (event) {
-        expect(event.timeStamp).toBe(fakeTime);
-      }).click();
-    });
-  });
-  describe('edge cases and assumptions', function () {
-    it('should toggle checkbox when clicked', function () {
-      var chb = $('<input type="checkbox"/>');
-      expect(chb.is(':checked')).toBeFalsy();
-      chb.click();
-      expect(chb.is(':checked')).toBeTruthy();
-      chb.click();
-      expect(chb.is(':checked')).toBeFalsy();
-    });
-    it('should not toggle checkbox on other events', function () {
-      var chb = $('<input type="checkbox"/>');
-      chb.mouseenter();
-      expect(chb.is(':checked')).toBeFalsy();
-    });
+  it('should cleanup spies on demand', function () {
+    jasmineQuery.unmockEvents();
+    for(i in $.fn) {
+      if ($.fn.hasOwnProperty(i)) {
+        expect(jasmine.isSpy($.fn[i])).toBeFalsy('because "' + i + '" should be reverted to standard jQuery function');
+      }
+    }
   });
 });

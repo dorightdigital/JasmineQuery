@@ -58,6 +58,11 @@ var jasmineQuery = {
   var supportedEvents;
   var mockedFns = {};
 
+  function mockFn(name, fake) {
+    mockedFns[name] = $.fn[name];
+    spyOn($.fn, name).andCallFake(fake);
+  }
+
   function lookupEventsForElem(elem) {
     var elemKey = keyMap.indexOf(elem);
     if (elemKey === -1) {
@@ -85,6 +90,14 @@ var jasmineQuery = {
     var configs = lookupEventsForElem($elem[0])[eventType] || [];
     var output = [];
 
+    function reverseOrderOfArray(array) {
+      var finalOut = []
+      $.each(array, function (key, val) {
+        finalOut[array.length - 1 - key] = val;
+      });
+      return finalOut;
+    }
+
     function lookupParentEvents($child) {
       var $parent = $child.parent();
       var parentConfigs = lookupEventsForElem($parent[0])[eventType] || [];
@@ -93,53 +106,109 @@ var jasmineQuery = {
         return;
       }
       $.each(parentConfigs, function () {
-        if (this.childSelector && $parent.find(this.childSelector).length > 0) {
-          output.push(this.handler);
+        if (!this.childSelector || $parent.find(this.childSelector).length > 0) {
+          output.push(this);
         }
       });
       lookupParentEvents($parent);
     }
 
+    lookupParentEvents($elem);
+
     $.each(configs, function () {
       if (!this.childSelector) {
-        output.push(this.handler);
+        output.push(this);
       }
     });
 
-    lookupParentEvents($elem);
-    return output;
+    return reverseOrderOfArray(output);
   }
 
   jasmineQuery.mockEvents = function () {
     $.each(supportedEvents, function () {
       var eventType = '' + this;
-      mockedFns[eventType] = $.fn[eventType];
-      spyOn($.fn, eventType).andCallFake(function (callback) {
+      mockFn(eventType, function (callback) {
         if (callback) {
           addHandler(this, {eventType: eventType, handler: callback});
         } else {
-          if (eventType === 'click' && $(this).is('input[type=checkbox]')) {
-            $(this).prop('checked', !$(this).is(':checked'));
+          if (eventType === 'click') {
+            if ($(this).is('input[type=checkbox]') || $(this).is('input[type=radio]')) {
+              $(this).prop('checked', !$(this).is(':checked'));
+            }
           }
           jasmineQuery.callEventHandler(eventType, this, {});
         }
         return this;
       });
     });
-    mockedFns.on = $.fn.on;
-    spyOn($.fn, 'on').andCallFake(function (a, b, c) {
-      var params = {
-        eventType: a
-      };
+    function mockAllEvents(self, eventMap) {
+      $.each(eventMap, function (eventType, fn) {
+        addHandler(self, {eventType: eventType, handler: fn});
+      });
+    }
+
+    function mockEventSetup(mockName, paramSorter) {
+      mockFn(mockName, function (a, b, c, d) {
+        var self = this;
+        if (typeof a === 'object') {
+          mockAllEvents(self, a);
+        } else {
+          $.each(a.split(' '), function (key, eventType) {
+            var endOfEventType = eventType.indexOf('.');
+            if (endOfEventType > -1) {
+              eventType = eventType.substr(0, endOfEventType);
+            }
+
+            var params = {
+              eventType: eventType
+            };
+
+            paramSorter(params, a, b, c, d);
+
+            addHandler(self, params);
+          });
+        }
+        return this;
+      });
+    }
+
+    mockEventSetup('on', function (params, a, b, c, d) {
+      if (typeof b === 'function' || b === false) {
+        params.handler = b || function () {
+          return false;
+        };
+      } else {
+        if (typeof c === 'function' || c === false) {
+          params.handler = c || function () {
+            return false;
+          };
+          if (typeof b === 'object') {
+            params.data = b;
+          } else {
+            params.childSelector = b;
+          }
+        } else {
+          params.childSelector = b;
+          params.data = c;
+          params.handler = d;
+        }
+      }
+    });
+    mockEventSetup('bind', function (params, a, b, c) {
       if (typeof b === 'function') {
         params.handler = b;
+        params.data = null;
       } else {
-        params.childSelector = b;
+        params.data = b;
         params.handler = c;
       }
-
-      addHandler(this, params);
-      return this;
+    });
+    mockFn('trigger', function (eventType, data) {
+      if (data) {
+        jasmineQuery.callEventHandler(eventType, this, {}, data);
+      } else {
+        jasmineQuery.callEventHandler(eventType, this, {});
+      }
     });
   };
   jasmineQuery.unmockEvents = function () {
@@ -153,21 +222,28 @@ var jasmineQuery = {
     supportedEvents = ['click', 'mouseenter', 'mouseleave', 'submit'];
   };
   jasmineQuery.callEventHandler = function (eventType, $elem, event) {
-    var originalArgs = arguments;
+    var originalArgs = arguments, hasReturnedFalse = false;
     $.each(lookupHandlers($elem, eventType), function () {
+      if (hasReturnedFalse) {
+        return;
+      }
       var i, eventToPass = {
         target: $elem[0],
         timeStamp: new Date().getTime(),
         type: eventType,
         preventDefault: function () {
-        }
+        },
+        data: this.data
       };
       $.extend(eventToPass, event);
       var argArray = [eventToPass];
-      for(i = 3; i < originalArgs.length; i++) {
+      for (i = 3; i < originalArgs.length; i++) {
         argArray.push(originalArgs[i]);
       }
-      this.apply($elem, argArray);
+      var output = this.handler.apply($elem, argArray);
+      if (output === false) {
+        hasReturnedFalse = true;
+      }
     });
   };
   jasmineQuery.hasHandler = function (eventType, $elem) {
