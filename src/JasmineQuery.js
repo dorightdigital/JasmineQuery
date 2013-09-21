@@ -58,8 +58,50 @@ var jasmineQuery = {};
 }());
 
 (function () {
-  var eventHandlers;
-  var keyMap;
+  jasmineQuery.createSandboxedElementStorage = function () {
+    var keys = [];
+    var values = [];
+
+    function lookupKey($elemList) {
+      var key = keys.indexOf($elemList);
+      if (key === -1) {
+        keys.push($elemList);
+        key = keys.length - 1;
+      }
+      return key;
+    }
+
+    function lookupKeyOrDefaultToArray(parent, key) {
+      return parent[key] = parent[key] || []
+    }
+
+    function lookupContainer($elemList, container) {
+      var containers = lookupKeyOrDefaultToArray(values, lookupKey($elemList[0]));
+      return lookupKeyOrDefaultToArray(containers, container);
+    }
+
+    function lookup($elemList, container) {
+      if ($elemList.length > 1) {
+        throw 'can\'t get on multiple elements, [' + $elemList.length + '] provided.';
+      }
+      return lookupContainer($elemList, container);
+    }
+
+    function set($elemList, container, value) {
+      $elemList.each(function () {
+        lookupContainer($(this), container).push(value);
+      });
+    }
+
+    return {
+      addForElems: set,
+      getForElem: lookup
+    };
+  }
+}());
+
+(function () {
+  var eventHandlerStore;
   var supportedEvents;
   var mockedFns = {};
 
@@ -68,35 +110,16 @@ var jasmineQuery = {};
     spyOn($.fn, name).andCallFake(fake);
   }
 
-  function lookupEventsForElem(elem) {
-    var elemKey = keyMap.indexOf(elem);
-    if (elemKey === -1) {
-      keyMap.push(elem);
-      elemKey = keyMap.length - 1;
-    }
-    if (typeof eventHandlers[elemKey] === 'undefined') {
-      eventHandlers[elemKey] = {};
-    }
-    return eventHandlers[elemKey];
-  }
-
   function addHandler($elem, conf) {
-    var i;
-    for (i = 0; i < $elem.length; i++) {
-      var eventList = lookupEventsForElem($elem.eq(i)[0]);
-      if (typeof eventList[conf.eventType] === 'undefined') {
-        eventList[conf.eventType] = [];
-      }
-      eventList[conf.eventType].push(conf);
-    }
+    eventHandlerStore.addForElems($elem, conf.eventType, conf);
   }
 
   function lookupHandlers($elem, eventType) {
-    var configs = lookupEventsForElem($elem[0])[eventType] || [];
+    var configs = eventHandlerStore.getForElem($elem, eventType);
     var output = [];
 
     function reverseOrderOfArray(array) {
-      var finalOut = []
+      var finalOut = [];
       $.each(array, function (key, val) {
         finalOut[array.length - 1 - key] = val;
       });
@@ -105,7 +128,7 @@ var jasmineQuery = {};
 
     function lookupParentEvents($child) {
       var $parent = $child.parent();
-      var parentConfigs = lookupEventsForElem($parent[0])[eventType] || [];
+      var parentConfigs = eventHandlerStore.getForElem($parent, eventType);
 
       if ($parent.length === 0) {
         return;
@@ -222,8 +245,7 @@ var jasmineQuery = {};
     });
   };
   jasmineQuery.resetMockEvents = function () {
-    eventHandlers = [];
-    keyMap = [];
+    eventHandlerStore = jasmineQuery.createSandboxedElementStorage();
     supportedEvents = ['click', 'mouseenter', 'mouseleave', 'submit'];
   };
   jasmineQuery.callEventHandler = function (eventType, $elem, event) {
@@ -267,8 +289,37 @@ var jasmineQuery = {};
     }
   });
 
-  jasmineQuery.spyOnWidget = function (widgetName) {
-    spyOn($.fn, widgetName);
-  };
+  (function () {
+    var store = jasmineQuery.createSandboxedElementStorage();
+    jasmineQuery.spyOnWidget = function (widgetName) {
+      spyOn($.fn, widgetName).andCallFake(function () {
+        store.addForElems($(this), widgetName, Array.prototype.slice.call(arguments));
+      });
+    };
+    function argsMatchOneCall(allCalls, requiredArgs) {
+      var oneHasMatched = false;
+      console.log(allCalls, requiredArgs);
+      $.each(allCalls, function () {
+        if (oneHasMatched) {
+          return;
+        }
+        var currentCall = this;
+        if (currentCall.length === requiredArgs.length) {
+          oneHasMatched = true;
+        }
+      });
+      return oneHasMatched;
+    }
+
+    jasmineQuery.addMatcher('toHaveUsedWidget', function (widgetName, args) {
+      var callsMade = store.getForElem(this.actual, widgetName);
+      if (typeof args === 'undefined') {
+        return callsMade.length > 0;
+      } else {
+        return argsMatchOneCall(callsMade, args);
+      }
+    });
+  }());
+
 
 }());
