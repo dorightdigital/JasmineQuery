@@ -266,4 +266,9 @@ var jasmineQuery = {};
       return defaultPrevented;
     }
   });
+
+  jasmineQuery.spyOnWidget = function (widgetName) {
+    spyOn($.fn, widgetName);
+  };
+
 }());
