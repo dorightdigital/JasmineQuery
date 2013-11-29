@@ -249,6 +249,28 @@ describe('direct comparison', function () {
           }).click();
         });
       });
+      describe('removing elements', function () {
+        beforeEach(function () {
+          $elem.click(spy);
+        });
+        it('should recognise when event handlers are lost through removing dom elements', function () {
+          $elem.appendTo($('body'));
+          $elem.remove();
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
+        it('should allow click events before removing from the dom', function () {
+          $elem.appendTo($('body'));
+          $elem.click();
+          $elem.remove();
+          expect(spy).toHaveBeenCalled();
+        });
+        it('should allow click events without being part of the dom', function () {
+          $elem.remove();
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
+      })
     });
   });
 });

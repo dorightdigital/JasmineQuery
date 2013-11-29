@@ -93,9 +93,16 @@ var jasmineQuery = {};
       });
     }
 
+    function reset($elemList) {
+      $elemList.each(function () {
+        values[lookupKey($(this)[0])] = [];
+      });
+    }
+
     return {
       addForElems: set,
-      getForElem: lookup
+      getForElem: lookup,
+      resetForElem: reset
     };
   }
 }());
@@ -169,6 +176,16 @@ var jasmineQuery = {};
         return this;
       });
     });
+
+    function interceptJQuery(name, fn) {
+      var tmp = $.fn[name];
+      mockedFns[name] = fn;
+      spyOn($.fn, name).andCallFake(function () {
+        fn.apply(this, arguments);
+        return tmp.apply(this, arguments);
+      });
+    }
+
     function mockAllEvents(self, eventMap) {
       $.each(eventMap, function (eventType, fn) {
         addHandler(self, {eventType: eventType, handler: fn});
@@ -238,6 +255,9 @@ var jasmineQuery = {};
         jasmineQuery.callEventHandler(eventType, this, {});
       }
     });
+    interceptJQuery('remove', function () {
+      eventHandlerStore.resetForElem($(this));
+    });
   };
   jasmineQuery.unmockEvents = function () {
     $.each(mockedFns, function (id, val) {
@@ -298,7 +318,6 @@ var jasmineQuery = {};
     };
     function argsMatchOneCall(allCalls, requiredArgs) {
       var oneHasMatched = false;
-      console.log(allCalls, requiredArgs);
       $.each(allCalls, function () {
         if (oneHasMatched) {
           return;
