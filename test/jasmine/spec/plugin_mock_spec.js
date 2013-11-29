@@ -39,6 +39,12 @@ describe('plugin mock', function () {
       expect($dom).not.toHaveUsedWidget(widgetName, [300]);
       expect($dom).toHaveUsedWidget(widgetName, [300, 400]);
     });
+    it('should match the same element in different contexts', function () {
+      jasmineQuery.spyOnWidget(widgetName);
+      var $tmp = $('<div/>').append($dom);
+      $dom[widgetName]();
+      expect($tmp.find('> *')).toHaveUsedWidget(widgetName);
+    });
   });
 
 });
