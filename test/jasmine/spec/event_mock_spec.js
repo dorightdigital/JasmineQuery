@@ -10,7 +10,9 @@ describe('Event Mocks', function () {
     jasmineQuery.resetMockEvents();
   });
   describe('normal events', function () {
-    $.each(['click', 'mouseenter', 'mouseleave', 'submit'], function () {
+    $.each(['click', 'mouseenter', 'mouseleave', 'submit', 'change', 'blur', 'focus',
+      'dblclick', 'focusin', 'focusout', 'keydown', 'keyup', 'keypress', 'mousedown',
+      'mousemove', 'mouseout', 'mouseover', 'mouseup', 'unload'], function () {
       var eventType = '' + this;
       describe(eventType + ' handlers', function () {
         it('should capture basic ' + eventType + ' event handler', function () {

@@ -174,6 +174,12 @@ describe('direct comparison', function () {
           $elem.on('click', data, spy).click();
           expect(spy).toHaveBeenCalled();
         });
+        it('should support off', function () {
+          $elem.on('click', spy);
+          $elem.off('click', spy);
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
         it('should pass data through alongside child selector', function () {
           var data = {abc: 'def'};
           var $child = $('<span/>').appendTo($elem);
@@ -229,6 +235,49 @@ describe('direct comparison', function () {
           $elem.mouseover();
           expect(spy).toHaveBeenCalled();
         });
+        it('should support simple unbinding', function () {
+          $elem.bind('click', spy);
+          $elem.unbind('click', spy);
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
+        it('should only unbind actual function provided', function () {
+          $elem.bind('click', spy);
+          $elem.unbind('click', function(){});
+          $elem.click();
+          expect(spy).toHaveBeenCalled();
+        });
+        it('should only unbind same event type', function () {
+          $elem.bind('click', spy);
+          $elem.unbind('something', spy);
+          $elem.click();
+          expect(spy).toHaveBeenCalled();
+        });
+        it('should unbind all events of one type', function () {
+          $elem.bind('click submit', spy);
+          $elem.unbind('click');
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+          $elem.submit();
+          expect(spy).toHaveBeenCalled();
+        });
+        it('should unbind all events of all types', function () {
+          $elem.bind('click', spy);
+          $elem.unbind();
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
+        it('should turn "off" all events of all types', function () {
+          $elem.on('click', spy);
+          $elem.off();
+          $elem.click();
+          expect(spy).not.toHaveBeenCalled();
+        });
+        it('should support namespaced binding', function () {
+          $elem.bind('click.mynamespace', spy);
+          $elem.click();
+          expect(spy).toHaveBeenCalled();
+        });
         it('should support multiple events in one', function () {
           var clickHandler = jasmine.createSpy('click');
           var mouseenterHandler = jasmine.createSpy('mouseenter');
@@ -266,11 +315,16 @@ describe('direct comparison', function () {
           expect(spy).toHaveBeenCalled();
         });
         it('should allow click events without being part of the dom', function () {
-          $elem.remove();
+          $elem.click();
+          expect(spy).toHaveBeenCalled();
+        });
+        it('should allow click events without being part of the dom', function () {
+          $('<div/>').append($elem).remove();
           $elem.click();
           expect(spy).not.toHaveBeenCalled();
         });
-      })
+      });
+      // todo: one, delegate, undelegate, hover
     });
   });
 });

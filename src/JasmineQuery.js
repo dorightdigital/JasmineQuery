@@ -93,16 +93,34 @@ var jasmineQuery = {};
       });
     }
 
-    function reset($elemList) {
+    function resetSingleElem(elem) {
+      values[lookupKey(elem)] = [];
+    }
+
+    function remove($elemList, containerName, value) {
       $elemList.each(function () {
-        values[lookupKey($(this)[0])] = [];
+        if (containerName === undefined) {
+          values[lookupKey($(this)[0])] = [];
+          return;
+        }
+        var container = lookupContainer($(this), containerName);
+        if (value === undefined) {
+          container.splice(0, container.length);
+          return;
+        }
+        $.each(container, function (key, val) {
+          if (val.handler === value) {
+            container.splice(key, 1);
+          }
+        });
       });
     }
 
     return {
       addForElems: set,
       getForElem: lookup,
-      resetForElem: reset
+      removeFromElem: remove,
+      resetForElem: resetSingleElem
     };
   }
 }());
@@ -248,15 +266,30 @@ var jasmineQuery = {};
         params.handler = c;
       }
     });
-    mockFn('trigger', function (eventType, data) {
-      if (data) {
-        jasmineQuery.callEventHandler(eventType, this, {}, data);
+    function offAndUnbind(eventType, fn) {
+      var tmp;
+      if (eventType) {
+        eventHandlerStore.removeFromElem(this, eventType, fn);
       } else {
-        jasmineQuery.callEventHandler(eventType, this, {});
+        tmp = eventHandlerStore.removeFromElem(this);
       }
+    }
+    mockFn('unbind', offAndUnbind);
+    mockFn('off', offAndUnbind);
+    mockFn('trigger', function (eventType, data) {
+      var params = [eventType, this, {}];
+      if (data) {
+        params.push(data);
+      }
+      jasmineQuery.callEventHandler.apply(null, params);
     });
     interceptJQuery('remove', function () {
-      eventHandlerStore.resetForElem($(this));
+      $(this).each(function () {
+        eventHandlerStore.resetForElem(this);
+        $(this).find('*').each(function () {
+          eventHandlerStore.resetForElem(this);
+        });
+      });
     });
   };
   jasmineQuery.unmockEvents = function () {
@@ -266,7 +299,7 @@ var jasmineQuery = {};
   };
   jasmineQuery.resetMockEvents = function () {
     eventHandlerStore = jasmineQuery.createSandboxedElementStorage();
-    supportedEvents = ['click', 'mouseenter', 'mouseleave', 'submit'];
+    supportedEvents = ['click'];
   };
   jasmineQuery.callEventHandler = function (eventType, $elem, event) {
     var originalArgs = arguments, hasReturnedFalse = false;
