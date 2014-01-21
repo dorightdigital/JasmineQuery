@@ -14,7 +14,7 @@ var jasmineQuery = {};
         if (!this.actual.is || !this.actual.on || !this.actual.click) {
           throw 'non jQuery element provided for matcher [' + name + ']';
         }
-        return matcher.apply(this, arguments)
+        return matcher.apply(this, arguments);
       }
     },
     refreshMatchers: function (test) {
@@ -72,7 +72,7 @@ var jasmineQuery = {};
     }
 
     function lookupKeyOrDefaultToArray(parent, key) {
-      return parent[key] = parent[key] || []
+      return parent[key] = parent[key] || [];
     }
 
     function lookupContainer($elemList, container) {
@@ -143,14 +143,6 @@ var jasmineQuery = {};
     var configs = eventHandlerStore.getForElem($elem, eventType);
     var output = [];
 
-    function reverseOrderOfArray(array) {
-      var finalOut = [];
-      $.each(array, function (key, val) {
-        finalOut[array.length - 1 - key] = val;
-      });
-      return finalOut;
-    }
-
     function lookupParentEvents($child) {
       var $parent = $child.parent();
       var parentConfigs = eventHandlerStore.getForElem($parent, eventType);
@@ -174,7 +166,7 @@ var jasmineQuery = {};
       }
     });
 
-    return reverseOrderOfArray(output);
+    return output.reverse();
   }
 
   jasmineQuery.mockEvents = function () {
