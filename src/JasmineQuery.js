@@ -317,6 +317,7 @@ var jasmineQuery = {};
         hasReturnedFalse = true;
       }
     });
+	  return !hasReturnedFalse;
   };
   jasmineQuery.hasHandler = function (eventType, $elem) {
     return lookupHandlers($elem, eventType).length > 0;
@@ -325,12 +326,12 @@ var jasmineQuery = {};
   jasmineQuery.addMatchers({
     toPreventDefaultFor: function (event) {
       var defaultPrevented = false;
-      jasmineQuery.callEventHandler(event, this.actual, {
+      var returnValAllowsDefault = jasmineQuery.callEventHandler(event, this.actual, {
         preventDefault: function () {
           defaultPrevented = true;
         }
       });
-      return defaultPrevented;
+      return defaultPrevented || !returnValAllowsDefault;
     }
   });
 

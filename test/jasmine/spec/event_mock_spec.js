@@ -58,6 +58,12 @@ describe('Event Mocks', function () {
           });
           expect($elem).not.toPreventDefaultFor(eventType);
         });
+        it('should detect preventing default behaviour via reurning false', function () {
+          $elem[eventType](function () {
+            return false;
+          });
+          expect($elem).toPreventDefaultFor(eventType);
+        });
         it('should detect preventing default if any function prevents it', function () {
           $elem[eventType](emptyFunc);
           $elem[eventType](function (e) {
