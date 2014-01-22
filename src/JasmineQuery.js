@@ -2,6 +2,11 @@
 var jasmineQuery = {};
 (function () {
   var installedMatchers = {};
+
+  function getTestScope() {
+    return jasmine.currentEnv_ && jasmine.currentEnv_.currentSpec
+  }
+
   jasmineQuery = {
     addMatchers: function (matchers) {
       $.each(matchers, function (name, matcher) {
@@ -9,12 +14,21 @@ var jasmineQuery = {};
       });
     },
     addMatcher: function (name, matcher) {
-      installedMatchers[name] = matcher;
-      jasmine.Matchers.prototype[name] = function () {
+      var testScope = getTestScope();
+      var preparedMatcher = function () {
         if (!this.actual.is || !this.actual.on || !this.actual.click) {
           throw 'non jQuery element provided for matcher [' + name + ']';
         }
-        return matcher.apply(this, arguments);
+        var val = matcher.apply(this, arguments);
+        return val;
+      };
+      if (testScope) {
+        var list = {};
+        list[name] = preparedMatcher
+        testScope.addMatchers(list);
+      } else {
+        installedMatchers[name] = matcher;
+        jasmine.Matchers.prototype[name] = preparedMatcher
       }
     },
     refreshMatchers: function (test) {
@@ -266,6 +280,7 @@ var jasmineQuery = {};
         tmp = eventHandlerStore.removeFromElem(this);
       }
     }
+
     mockFn('unbind', offAndUnbind);
     mockFn('off', offAndUnbind);
     mockFn('trigger', function (eventType, data) {
@@ -317,7 +332,7 @@ var jasmineQuery = {};
         hasReturnedFalse = true;
       }
     });
-	  return !hasReturnedFalse;
+    return !hasReturnedFalse;
   };
   jasmineQuery.hasHandler = function (eventType, $elem) {
     return lookupHandlers($elem, eventType).length > 0;

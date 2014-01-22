@@ -83,6 +83,11 @@ describe("JasmineQuery matcher examples", function () {
       });
       expect($elem).not.toBeSomethingSpecific();
     });
+    it('should cleanup custom matchers between tests', function () {
+      expect(function () {
+        expect($elem).not.toBeSomethingSpecific();
+      }).toThrow();
+    });
     it('should only run your custom matcher with valid jQuery elements so that' +
       ' you don\'t have to worry about checking it yourself', function () {
       var spyMatcher = jasmine.createSpy('spy');
