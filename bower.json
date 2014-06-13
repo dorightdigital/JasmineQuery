@@ -1,0 +1,29 @@
+{
+  "name": "JasmineQuery",
+  "version": "1.0.0",
+  "homepage": "http://dorightdigital.com/JasmineQuery",
+  "authors": [
+    "Mat Carey <mat@matcarey.co.uk>"
+  ],
+  "description": "Making jQuery testing with Jasmine more fun and effective.",
+  "main": "src/JasmineQuery.js",
+  "keywords": [
+    "Jasmine",
+    "jQuery",
+    "TDD",
+    "BDD",
+    "Unit",
+    "Test"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~1.10.2"
+  }
+}
