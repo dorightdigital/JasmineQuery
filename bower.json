@@ -19,6 +19,7 @@
   "ignore": [
     "**/.*",
     "node_modules",
+    "playground",
     "bower_components",
     "test",
     "tests"
